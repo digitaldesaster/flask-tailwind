@@ -38,4 +38,27 @@ async function streamMessage() {
   }
 }
 
+function clearChatAndMessage() {
+  console.log("Clearing chat and message content");
+  const chatInput = document.getElementById("chat_input");
+  chatInput.value = '';
+
+  const messageDisplay = document.getElementById("message");
+  if (messageDisplay) {
+    messageDisplay.innerHTML = '';
+  }
+}
+
+
 document.getElementById("chat_button").addEventListener("click", streamMessage);
+
+document.getElementById("chat_input").addEventListener("keydown", function(event) {
+  // Support for both Command + Enter (Mac) and Ctrl + Enter (Windows)
+  if ((event.metaKey || event.ctrlKey) && event.key === "Enter") {
+    event.preventDefault(); // Prevent default to avoid form submission or other undesired behavior
+    streamMessage();
+  }
+});
+
+
+document.getElementById("reset_button").addEventListener("click", clearChatAndMessage);
