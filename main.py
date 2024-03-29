@@ -5,10 +5,6 @@ app = Flask(__name__)
 
 @app.route('/')
 def index():
-    return render_template('test.html')
-
-@app.route('/chat')
-def chat():
     return render_template('chat.html')
 
 @app.route('/stream', methods=['POST'])
