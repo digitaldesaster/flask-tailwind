@@ -1,4 +1,4 @@
-let messages = [{"role": "system", "content": "Du bist ein hilfreicher Assistent, antworte auf Deutsch."}];
+let messages = [{ "role": "system", "content": "Du bist ein hilfreicher Assistent, antworte auf Deutsch." }];
 
 document.addEventListener('DOMContentLoaded', (event) => {
   addBotMessage('Hallo, wie kann ich helfen?');
@@ -14,7 +14,41 @@ async function stopStreaming() {
   stop_stream = true;
 }
 
+// Function to append normal text
+function appendNormalText(container, text) {
+  const textNode = document.createTextNode(text);
+  container.appendChild(textNode);
+}
+
+function appendCodeText(container, text) {
+  // Get the template and clone its content
+  const template = document.getElementById('code_template').content.cloneNode(true);
+
+  // Set the text content of the pre element
+  const preElement = template.querySelector('pre');
+  preElement.textContent = text;
+
+  // Append the filled template to the specified container
+  const importedNode = document.importNode(template, true);
+
+  // IMPORTANT: Add the event listener to the COPY button of this specific instance BEFORE appending to the container
+  const copyButton = importedNode.querySelector('.copy-btn');
+  copyButton.onclick = (event) => { // It's better to use onclick here to avoid multiple bindings
+    console.log('Button clicked');
+    navigator.clipboard.writeText(preElement.textContent).then(() => {
+      console.log('Text copied to clipboard');
+    }).catch(err => {
+      console.error('Failed to copy text:', err);
+    });
+  };
+
+  container.appendChild(importedNode);
+}
+
+
+
 async function streamMessage() {
+
   const chatInput = document.getElementById("chat_input");
   const userMessage = chatInput.value.trim();
 
@@ -49,7 +83,6 @@ async function streamMessage() {
       const reader = response.body.getReader();
 
       while (true) {
-        
         const { done, value } = await reader.read();
         if (done || stop_stream) {
           // After finishing the streaming, update the messages array and log it
@@ -57,14 +90,24 @@ async function streamMessage() {
           console.log('Stream finished, messages array:', messages);
           toggleButtonVisibility();
           chatInput.readOnly = false;
-
-
           break;
         }
         const text = new TextDecoder().decode(value);
-        // Append the streamed text directly to the bot message element
-        botMessageElement.textContent += text;
         accumulatedResponse += text; // Accumulate the response
+      
+        // Before updating, clear the existing content to avoid duplication
+        botMessageElement.innerHTML = '';
+      
+        const parts = accumulatedResponse.split("```");
+        for (let i = 0; i < parts.length; i++) {
+          if (i % 2 === 0) {
+            // This part is not code, append it as normal text
+            appendNormalText(botMessageElement, parts[i]);
+          } else {
+            // This part is code, append it within <pre> tags
+            appendCodeText(botMessageElement, parts[i]);
+          }
+        }
         scrollToBottom();
       }
     } catch (error) {
@@ -83,11 +126,11 @@ function clearChatAndMessage() {
 
   const messagesContainer = document.getElementById("chat_messages");
   messagesContainer.innerHTML = ''; // Clear all messages from the chat
-  
+
   // Reset messages array to only include the system message again
   messages.length = 0; // Clear the array
-  messages.push({"role": "system", "content": "Du bist ein hilfreicher Assistent, antworte auf Deutsch."});
-  
+  messages.push({ "role": "system", "content": "Du bist ein hilfreicher Assistent, antworte auf Deutsch." });
+
   // Add the initial bot message again
   addBotMessage('Hallo, wie kann ich helfen?');
 }
@@ -98,7 +141,7 @@ function toggleButtonVisibility() {
 
   chatButton.classList.toggle("hidden");
   stopButton.classList.toggle("hidden");
- 
+
 }
 
 
@@ -122,7 +165,7 @@ function addUserMessage(text) {
 
 document.getElementById("chat_button").addEventListener("click", streamMessage);
 
-document.getElementById("chat_input").addEventListener("keydown", function(event) {
+document.getElementById("chat_input").addEventListener("keydown", function (event) {
   if ((event.metaKey || event.ctrlKey) && event.key === "Enter") {
     event.preventDefault();
     streamMessage();
