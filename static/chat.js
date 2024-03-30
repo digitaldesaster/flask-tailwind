@@ -1,7 +1,8 @@
-let messages = [{ "role": "system", "content": "Du bist ein hilfreicher Assistent, antworte auf Deutsch." }];
+
+let messages = [{ "role": "system", "content": systemMessage}];
 
 document.addEventListener('DOMContentLoaded', (event) => {
-  addBotMessage('Hallo, wie kann ich helfen?');
+  addBotMessage(welcomeMessage);
 });
 
 // Define a global variable to control the streaming process
@@ -45,13 +46,17 @@ function appendCodeText(container, text) {
 
   // IMPORTANT: Add the event listener to the COPY button of this specific instance BEFORE appending to the container
   const copyButton = importedNode.querySelector('.copy-btn');
+  const copiedInfo = importedNode.querySelector('.copied');
   copyButton.onclick = (event) => { // It's better to use onclick here to avoid multiple bindings
-    console.log('Button clicked');
+    copiedInfo.classList.remove("hidden");
     navigator.clipboard.writeText(preElement.textContent).then(() => {
       console.log('Text copied to clipboard');
     }).catch(err => {
       console.error('Failed to copy text:', err);
     });
+    setTimeout(function() {
+      copiedInfo.classList.add("hidden");
+    }, 500);
   };
 
   container.appendChild(importedNode);
@@ -145,7 +150,7 @@ function clearChatAndMessage() {
   messages.push({ "role": "system", "content": "Du bist ein hilfreicher Assistent, antworte auf Deutsch." });
 
   // Add the initial bot message again
-  addBotMessage('Hallo, wie kann ich helfen?');
+  addBotMessage(welcomeMessage);
 }
 
 function toggleButtonVisibility() {

@@ -1,11 +1,12 @@
 from flask import Flask, render_template,request,Response
 from llm import streamChatGPT
+from config import getConfig
 
 app = Flask(__name__)
 
 @app.route('/')
 def index():
-    return render_template('chat.html')
+    return render_template('chat.html',config=getConfig())
 
 @app.route('/stream', methods=['POST'])
 def stream():
