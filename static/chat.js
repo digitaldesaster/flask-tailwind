@@ -24,12 +24,24 @@ function appendCodeText(container, text) {
   // Get the template and clone its content
   const template = document.getElementById('code_template').content.cloneNode(true);
 
+  const lines = text.split('\n');
+  const language = lines[0].trim(); // Get the language info from the first line
+  console.log(`Code block language: ${language}`); // Log the language info
+
+  // Remove the first line (language info) and join the rest back into a single string
+  const codeWithoutLanguageInfo = lines.slice(1).join('\n').trim();
+
   // Set the text content of the pre element
   const preElement = template.querySelector('pre');
-  preElement.textContent = text;
+  preElement.textContent = codeWithoutLanguageInfo;
 
   // Append the filled template to the specified container
   const importedNode = document.importNode(template, true);
+
+  if (language) { // Check if the language string is not empty
+    const languageInfoElement = importedNode.querySelector('.language-info');
+    languageInfoElement.textContent = `${language}`; // Set the language info
+  }
 
   // IMPORTANT: Add the event listener to the COPY button of this specific instance BEFORE appending to the container
   const copyButton = importedNode.querySelector('.copy-btn');
@@ -44,6 +56,7 @@ function appendCodeText(container, text) {
 
   container.appendChild(importedNode);
 }
+
 
 
 
