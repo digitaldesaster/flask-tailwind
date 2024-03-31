@@ -1,4 +1,5 @@
 from flask import Flask, request, redirect, url_for, render_template, session,Response
+import time, json
 
 from llm import streamChatGPT
 from config import getConfig
@@ -27,8 +28,10 @@ def login_required(f):
 @app.route('/')
 @login_required
 def index():
-    print(session['username'])
-    return render_template('chat.html', config=getConfig())
+    config = getConfig()
+    config['username'] = session['username']
+    config['chat_started'] = int(time.time())
+    return render_template('chat.html', config=config)
 
 @app.route('/stream', methods=['POST'])
 @login_required
@@ -37,6 +40,18 @@ def stream():
     response_stream = streamChatGPT(messages)
     return Response(response_stream, mimetype='text/event-stream')
 
+@app.route('/save_chat', methods=['POST'])
+@login_required
+def save_chat():
+    username = request.form.get('username')
+    chat_started = request.form.get('chat_started')
+    messages = request.form.get('messages')
+    print (username,chat_started)
+    print (json.loads(messages))
+
+    # Hier kümmern wir uns später um die Datenbankverarbeitung
+
+    return 'Chat gespeichert!'
 
 if __name__ == '__main__':
     app.run(debug=True)

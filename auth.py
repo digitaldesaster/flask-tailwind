@@ -5,7 +5,11 @@ from db import ensure_users_table_exists,get_user,add_user
 
 my_auth = Blueprint('my_auth', __name__)
 
-WHITELISTED_USERNAMES = {'alexander.fillips@gmail.com', 'nina.fillips@web.de'}
+import json
+
+with open('whitelist.json', 'r') as file:
+    whitelist_data = json.load(file)
+    WHITELISTED_USERNAMES = set(whitelist_data.get('whitelisted_usernames', []))
 
 @my_auth.route('/login', methods=['GET', 'POST'])
 def login():

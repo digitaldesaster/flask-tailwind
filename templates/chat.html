@@ -15,8 +15,26 @@
 </head>
 
 <body class="bg-gray-200 relative min-h-screen pb-32">
+  <header class="text-gray-600 body-font">
+    <div class="flex flex-wrap mx-8 pt-5 flex-col md:flex-row items-center">
+      <a class="flex title-font font-medium items-center text-gray-900 mb-4 md:mb-0">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-8 h-8 text-white p-2 bg-indigo-500 rounded-full">
+          <path stroke-linecap="round" stroke-linejoin="round" d="m3.75 13.5 10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75Z" />
+        </svg>
+        
+        <span class="ml-3 text-lg">AI Assistant</span>
+      </a>
+      <nav class="md:ml-auto flex flex-wrap items-center text-base justify-center">
+        <a href="/prompts" class="mr-5 hover:text-gray-900">Prompts</a>
+        <a href="/history" class="mr-5 hover:text-gray-900">History</a>
+    </nav>
+    <button class="inline-flex items-center bg-gray-100 border-0 py-1 px-3 focus:outline-none hover:bg-gray-200 rounded text-base mt-4 md:mt-0">
+      <a href="{{ url_for('my_auth.logout') }}" style="text-decoration: none; color: inherit;">Logout</a>
+  </button>
+    </div>
+  </header>
 
-  <div id="chat_messages" class="h-[38rem] ml-8 mr-8 mt-10 mb-12 overflow-auto flex flex-col">
+  <div id="chat_messages" class="h-[38rem] ml-16 mr-16 mt-10 mb-12 overflow-auto flex flex-col">
    
   </div>
 
@@ -24,7 +42,10 @@
   <template id="bot-message-template">
     <div class="flex space-x-4 mb-6">
       <div class="flex justify-center items-center w-10 h-10 bg-gray-600 text-white rounded-full">
-       B
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09ZM18.259 8.715 18 9.75l-.259-1.035a3.375 3.375 0 0 0-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 0 0 2.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 0 0 2.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 0 0-2.456 2.456ZM16.894 20.567 16.5 21.75l-.394-1.183a2.25 2.25 0 0 0-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 0 0 1.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 0 0 1.423 1.423l1.183.394-1.183.394a2.25 2.25 0 0 0-1.423 1.423Z" />
+        </svg>
+        
       </div>
       <div class="flex-1 py-1 content text-gray-800 text-lg"></div>
     </div>
@@ -71,7 +92,11 @@
 
   <script>
     var systemMessage = "{{ config.system_message }}";
-    var welcomeMessage = "{{ config.welcome_message }}"
+    var welcomeMessage = "{{ config.welcome_message }}";
+    var username = "{{ config.username }}";
+    var chat_started = "{{ config.chat_started }}";
+    console.log(chat_started);
+
 </script>
   
   <script src="{{ url_for('static', filename='chat.js') }}"></script>

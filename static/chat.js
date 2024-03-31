@@ -10,6 +10,34 @@ let stop_stream = false;
 
 document.getElementById("stop_button").addEventListener("click", stopStreaming);
 
+
+function saveChatData(messages) {
+  // Daten für den POST-Request
+  const formData = new FormData();
+  formData.append('username', username);
+  formData.append('chat_started', chat_started);
+  formData.append('messages', JSON.stringify(messages));
+
+  // Dynamische Generierung des API-Endpunkts aus der aktuellen URL
+  const url = `${window.location.origin}/save_chat`;
+
+  // POST-Request an den API-Endpunkt senden
+  fetch(url, {
+    method: 'POST',
+    body: formData,
+  })
+  .then(response => {
+    if (response.ok) {
+      console.log('Chat erfolgreich gespeichert!');
+    } else {
+      console.error('Fehler beim Speichern des Chats.');
+    }
+  })
+  .catch(error => {
+    console.error('Fehler beim Senden des Requests:', error);
+  });
+}
+
 async function stopStreaming() {
   // Set the flag to true to stop streaming
   stop_stream = true;
@@ -106,6 +134,7 @@ async function streamMessage() {
           // After finishing the streaming, update the messages array and log it
           messages.push({ role: 'assistant', content: accumulatedResponse });
           console.log('Stream finished, messages array:', messages);
+          saveChatData(messages);
           toggleButtonVisibility();
           chatInput.readOnly = false;
           break;
@@ -200,3 +229,6 @@ function scrollToBottom() {
 
 
 document.getElementById("reset_button").addEventListener("click", clearChatAndMessage);
+
+
+
