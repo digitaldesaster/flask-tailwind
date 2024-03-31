@@ -147,7 +147,7 @@ function clearChatAndMessage() {
 
   // Reset messages array to only include the system message again
   messages.length = 0; // Clear the array
-  messages.push({ "role": "system", "content": "Du bist ein hilfreicher Assistent, antworte auf Deutsch." });
+  messages.push({ "role": "system", "content": systemMessage });
 
   // Add the initial bot message again
   addBotMessage(welcomeMessage);
