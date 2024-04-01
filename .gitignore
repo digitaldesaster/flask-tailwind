@@ -6,3 +6,4 @@ __pycache__/
 .vscode
 users.db
 whitelist.json
+requirements.txt
