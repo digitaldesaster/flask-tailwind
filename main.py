@@ -9,10 +9,13 @@ from db import update_chat_entry,list_chat_history,get_chat_messages
 try:
     secret_key=os.environ("SECRET_KEY")
 except:
-    from dotenv import load_dotenv
-    load_dotenv()
-    secret_key=os.getenv("SECRET_KEY")
-
+    try:
+        from dotenv import load_dotenv
+        load_dotenv()
+        secret_key=os.getenv("SECRET_KEY")
+    except ImportError:
+        print ('dotenv is not installed')
+        
 
 app = Flask(__name__)
 app.secret_key = secret_key

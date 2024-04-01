@@ -4,9 +4,12 @@ from openai import OpenAI
 try:
     api_key=os.environ("OPENAI_API_KEY")
 except:
-    from dotenv import load_dotenv
-    load_dotenv()
-    api_key=os.getenv("OPENAI_API_KEY")
+    try:
+        from dotenv import load_dotenv
+        load_dotenv()
+        api_key=os.getenv("OPENAI_API_KEY")
+    except ImportError:
+        print ('dotenv is not installed')
 
 client = OpenAI(api_key=api_key)
 
