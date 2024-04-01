@@ -1,11 +1,21 @@
 from flask import Flask, request, redirect, url_for, render_template, session,Response
-import time, json
+import time, json, os
 
 from llm import streamChatGPT
 from config import getConfig
 
+from db import update_chat_entry,list_chat_history,get_chat_messages
+
+try:
+    secret_key=os.environ("SECRET_KEY")
+except:
+    from dotenv import load_dotenv
+    load_dotenv()
+    secret_key=os.getenv("SECRET_KEY")
+
+
 app = Flask(__name__)
-app.secret_key = 'asdlfakjsADSFLl23423400asdf_adf234234'
+app.secret_key = secret_key
 
 from flask import Flask
 from auth import my_auth  # Import the Blueprint you defined
@@ -25,13 +35,20 @@ def login_required(f):
     return decorated_function
 
 # Apply the login_required decorator to routes that require authentication
-@app.route('/')
+@app.route('/', methods=['GET', 'POST'])
 @login_required
 def index():
     config = getConfig()
-    config['username'] = session['username']
-    config['chat_started'] = int(time.time())
-    return render_template('chat.html', config=config)
+    if request.method == 'POST':
+        config['username'] = request.form.get('username')
+        config['chat_started'] = request.form.get('chat_started')
+        config['messages'] = json.loads(get_chat_messages(config['username'], config['chat_started']))
+        return render_template('chat.html', config=config)
+    else:
+        config['username'] = session['username']
+        config['chat_started'] = int(time.time())
+        return render_template('chat.html', config=config)
+
 
 @app.route('/stream', methods=['POST'])
 @login_required
@@ -46,12 +63,21 @@ def save_chat():
     username = request.form.get('username')
     chat_started = request.form.get('chat_started')
     messages = request.form.get('messages')
-    print (username,chat_started)
-    print (json.loads(messages))
+    
+    update_result = update_chat_entry(username, chat_started, messages)
 
-    # Hier kümmern wir uns später um die Datenbankverarbeitung
+    print (list_chat_history)
 
-    return 'Chat gespeichert!'
+    if update_result:
+        return 'Chat aktualisiert!'
+    else:
+        return 'Neuer Chat erstellt!'
+
+@app.route('/list_chat_history', methods=['GET'])
+@login_required
+def list_chat_history_endpoint():
+    chat_history = list_chat_history()
+    return render_template('chat_history.html',chat_history=chat_history)
 
 if __name__ == '__main__':
     app.run(debug=True)

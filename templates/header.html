@@ -1,0 +1,18 @@
+<header class="text-gray-600 body-font">
+    <div class="flex flex-wrap mx-8 pt-5 flex-col md:flex-row items-center">
+      <a href="{{ url_for('index') }}" class="flex title-font font-medium items-center text-gray-900 mb-4 md:mb-0">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-8 h-8 text-white p-2 bg-indigo-500 rounded-full">
+          <path stroke-linecap="round" stroke-linejoin="round" d="m3.75 13.5 10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75Z" />
+        </svg>
+        
+        <span class="ml-3 text-lg">AI Assistant</span>
+      </a>
+      <nav class="md:ml-auto flex flex-wrap items-center text-base justify-center">
+        <a href="/prompts" class="mr-5 hover:text-gray-900">Prompts</a>
+        <a href="/list_chat_history" class="mr-5 hover:text-gray-900">History</a>
+    </nav>
+    <button class="inline-flex items-center bg-gray-100 border-0 py-1 px-3 focus:outline-none hover:bg-gray-200 rounded text-base mt-4 md:mt-0">
+      <a href="{{ url_for('my_auth.logout') }}" style="text-decoration: none; color: inherit;">Logout</a>
+  </button>
+    </div>
+  </header>

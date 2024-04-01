@@ -1,9 +1,37 @@
+// Check if the messages array is empty using the length property
+if (messages.length === 0) {
+  messages = [{ "role": "system", "content": systemMessage }];
+  document.addEventListener('DOMContentLoaded', (event) => {
+    addBotMessage(welcomeMessage);
+  });
+} else {
+  // Use for...of to iterate over the elements of the array directly
+  for (const message of messages) {
+    // Check if the role of the message is either 'system' or 'assistant'
+    if (['system', 'assistant'].includes(message['role'])) {
+      const botMessageElement = addBotMessage('');
+      appendData(message['content'],botMessageElement)
+      
+    } else {
+      addUserMessage(message['content']);
+    }
+  }
+}
 
-let messages = [{ "role": "system", "content": systemMessage}];
+function appendData(text,botMessageElement)
+{
+  const parts = text.split("```");
+        for (let i = 0; i < parts.length; i++) {
+          if (i % 2 === 0) {
+            // This part is not code, append it as normal text
+            appendNormalText(botMessageElement, parts[i]);
+          } else {
+            // This part is code, append it within <pre> tags
+            appendCodeText(botMessageElement, parts[i]);
+          }
+        }
+}
 
-document.addEventListener('DOMContentLoaded', (event) => {
-  addBotMessage(welcomeMessage);
-});
 
 // Define a global variable to control the streaming process
 let stop_stream = false;
@@ -26,16 +54,18 @@ function saveChatData(messages) {
     method: 'POST',
     body: formData,
   })
-  .then(response => {
-    if (response.ok) {
-      console.log('Chat erfolgreich gespeichert!');
-    } else {
-      console.error('Fehler beim Speichern des Chats.');
-    }
-  })
-  .catch(error => {
-    console.error('Fehler beim Senden des Requests:', error);
-  });
+    .then(response => {
+      if (response.ok) {
+        console.log("api call successful");
+      }
+      return response.text();
+    })
+    .then(data => {
+      console.log(data); // Logge die Antwort des Servers
+    })
+    .catch(error => {
+      console.error('Fehler beim Senden des Requests:', error);
+    });
 }
 
 async function stopStreaming() {
@@ -82,7 +112,7 @@ function appendCodeText(container, text) {
     }).catch(err => {
       console.error('Failed to copy text:', err);
     });
-    setTimeout(function() {
+    setTimeout(function () {
       copiedInfo.classList.add("hidden");
     }, 500);
   };
@@ -141,20 +171,12 @@ async function streamMessage() {
         }
         const text = new TextDecoder().decode(value);
         accumulatedResponse += text; // Accumulate the response
-      
+
         // Before updating, clear the existing content to avoid duplication
         botMessageElement.innerHTML = '';
-      
-        const parts = accumulatedResponse.split("```");
-        for (let i = 0; i < parts.length; i++) {
-          if (i % 2 === 0) {
-            // This part is not code, append it as normal text
-            appendNormalText(botMessageElement, parts[i]);
-          } else {
-            // This part is code, append it within <pre> tags
-            appendCodeText(botMessageElement, parts[i]);
-          }
-        }
+
+        appendData(accumulatedResponse,botMessageElement)
+
         scrollToBottom();
       }
     } catch (error) {
@@ -164,22 +186,6 @@ async function streamMessage() {
       messages.push({ role: 'assistant', content: `Error occurred: ${error.message}` });
     }
   }
-}
-
-function clearChatAndMessage() {
-  console.log("Clearing chat and message content");
-  const chatInput = document.getElementById("chat_input");
-  chatInput.value = '';
-
-  const messagesContainer = document.getElementById("chat_messages");
-  messagesContainer.innerHTML = ''; // Clear all messages from the chat
-
-  // Reset messages array to only include the system message again
-  messages.length = 0; // Clear the array
-  messages.push({ "role": "system", "content": systemMessage });
-
-  // Add the initial bot message again
-  addBotMessage(welcomeMessage);
 }
 
 function toggleButtonVisibility() {
@@ -226,9 +232,6 @@ function scrollToBottom() {
   }, 0); // Verzögerung von 0 ms, was den Effekt hat, die Ausführung bis nach dem Rendering zu verzögern
 }
 
-
-
-document.getElementById("reset_button").addEventListener("click", clearChatAndMessage);
-
-
-
+document.getElementById("reset_button").addEventListener("click", function () {
+  window.location.href = "/";
+});

@@ -1,12 +1,14 @@
 import os
 from openai import OpenAI
 
-from dotenv import load_dotenv
+try:
+    api_key=os.environ("OPENAI_API_KEY")
+except:
+    from dotenv import load_dotenv
+    load_dotenv()
+    api_key=os.getenv("OPENAI_API_KEY")
 
-# Load environment variables from .env file
-load_dotenv()
-
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+client = OpenAI(api_key=api_key)
 
 def askChatGPT(prompt, system_message='', model='gpt-3.5-turbo'):
     if system_message == '':

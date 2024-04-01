@@ -1,7 +1,7 @@
 from flask import Blueprint, request, redirect, url_for, render_template, session
 from werkzeug.security import generate_password_hash, check_password_hash
 # Import database functions from db.py
-from db import ensure_users_table_exists,get_user,add_user
+from db import get_user,add_user
 
 my_auth = Blueprint('my_auth', __name__)
 
@@ -38,5 +38,3 @@ def logout():
     if 'username' in session:
         session.pop('username', None)
     return redirect(url_for('index'))
-
-ensure_users_table_exists()
