@@ -7,7 +7,7 @@ from config import getConfig
 from db import update_chat_entry,list_chat_history,get_chat_messages
 
 try:
-    secret_key=os.environ("SECRET_KEY")
+    secret_key=os.environ["SECRET_KEY"]
 except:
     try:
         from dotenv import load_dotenv

@@ -2,7 +2,7 @@ import os
 from openai import OpenAI
 
 try:
-    api_key=os.environ("OPENAI_API_KEY")
+    api_key=os.environ["OPENAI_API_KEY"]
 except:
     try:
         from dotenv import load_dotenv

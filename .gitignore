@@ -4,6 +4,6 @@ __pycache__/
 .env.local
 .DS_Store
 .vscode
-users.db
+database.db
 whitelist.json
 requirements.txt
