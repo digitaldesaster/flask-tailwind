@@ -120,6 +120,15 @@ def get_chat_messages(username, chat_started, conn=None):
     else:
         return "No messages found for the given parameters."
 
+@with_db_connection
+def delete_all_chat_history(conn=None):
+    """
+    Delete all chat history records.
+    """
+    query = "DELETE FROM chat_history"
+    execute_db_query(query, conn=conn)  
+
 # Ensure tables exist and the database connection setup remains unchanged from the previous setup.
 ensure_users_table_exists()
 ensure_chat_history_table_exists()
+#delete_all_chat_history()

@@ -4,32 +4,54 @@ if (messages.length === 0) {
   document.addEventListener('DOMContentLoaded', (event) => {
     addBotMessage(welcomeMessage);
   });
+  document.getElementById('chat_input').focus();
 } else {
   // Use for...of to iterate over the elements of the array directly
   for (const message of messages) {
     // Check if the role of the message is either 'system' or 'assistant'
     if (['system', 'assistant'].includes(message['role'])) {
       const botMessageElement = addBotMessage('');
-      appendData(message['content'],botMessageElement)
-      
+      appendData(message['content'], botMessageElement)
+
     } else {
       addUserMessage(message['content']);
     }
   }
+  document.getElementById('chat_messages').focus();
 }
 
-function appendData(text,botMessageElement)
-{
+function appendData(text, botMessageElement) {
   const parts = text.split("```");
-        for (let i = 0; i < parts.length; i++) {
-          if (i % 2 === 0) {
-            // This part is not code, append it as normal text
-            appendNormalText(botMessageElement, parts[i]);
-          } else {
-            // This part is code, append it within <pre> tags
-            appendCodeText(botMessageElement, parts[i]);
-          }
-        }
+  for (let i = 0; i < parts.length; i++) {
+    if (i % 2 === 0) {
+      // Check for ###STOP### marker in the non-code part
+      const stopIndex = parts[i].indexOf("###STOP###");
+      if (stopIndex !== -1) {
+        // If ###STOP### is found, process the text before and after it separately
+        const textBeforeStop = parts[i].substring(0, stopIndex);
+        // Append text before ###STOP### as normal text
+        appendNormalText(botMessageElement, textBeforeStop);
+
+        // Convert text after ###STOP### into a JSON array
+        let JsonString = parts[i].substring(stopIndex + "###STOP###".length).trim();
+        botMessageElement.innerHTML += '<br><span class="text-xs">' + JsonString +'</span';
+        // JsonString = JsonString.replace(/'/g, '"');
+        // try {
+        //   const jsonObject = JSON.parse(JsonString);
+        //   appendNormalText(botMessageElement, textBeforeStop);
+          
+        // } catch (e) {
+        //   console.error("Failed to parse JSON", e);
+        // }
+      } else {
+        // If ###STOP### is not found, append it as normal text
+        appendNormalText(botMessageElement, parts[i]);
+      }
+    } else {
+      // This part is code, append it within <pre> tags
+      appendCodeText(botMessageElement, parts[i]);
+    }
+  }
 }
 
 
@@ -162,6 +184,11 @@ async function streamMessage() {
         const { done, value } = await reader.read();
         if (done || stop_stream) {
           // After finishing the streaming, update the messages array and log it
+          const stopIndexAccumulated = accumulatedResponse.indexOf("###STOP###");
+          if (stopIndexAccumulated !== -1) {
+            // If ###STOP### is found, use only the text before it as accumulatedResponse
+            accumulatedResponse = accumulatedResponse.substring(0, stopIndexAccumulated);
+          }
           messages.push({ role: 'assistant', content: accumulatedResponse });
           console.log('Stream finished, messages array:', messages);
           saveChatData(messages);
@@ -175,7 +202,7 @@ async function streamMessage() {
         // Before updating, clear the existing content to avoid duplication
         botMessageElement.innerHTML = '';
 
-        appendData(accumulatedResponse,botMessageElement)
+        appendData(accumulatedResponse, botMessageElement)
 
         scrollToBottom();
       }

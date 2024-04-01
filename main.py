@@ -82,5 +82,9 @@ def list_chat_history_endpoint():
     chat_history = list_chat_history()
     return render_template('chat_history.html',chat_history=chat_history)
 
+@app.route('/test')
+def test():
+    return render_template('test.html')
+
 if __name__ == '__main__':
     app.run(debug=True)
