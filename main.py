@@ -4,7 +4,7 @@ import time, json, os
 from llm import streamChatGPT
 from config import getConfig
 
-from db import update_chat_entry,list_chat_history,get_chat_messages
+from db import update_chat_entry,list_chat_history,get_chat_messages,delete_all_chat_history
 
 try:
     secret_key=os.environ["SECRET_KEY"]
@@ -56,8 +56,9 @@ def index():
 @app.route('/stream', methods=['POST'])
 @login_required
 def stream():
-    messages = request.get_json()
-    response_stream = streamChatGPT(messages)
+    data = request.get_json()
+    print (data)
+    response_stream = streamChatGPT(data['messages'],data['model'])
     return Response(response_stream, mimetype='text/event-stream')
 
 @app.route('/save_chat', methods=['POST'])
@@ -84,7 +85,17 @@ def list_chat_history_endpoint():
 
 @app.route('/test')
 def test():
-    return render_template('test.html')
+    return render_template('flowbite.html')
+
+@app.route('/delete_chat_history')
+def delete_history():
+    delete_all_chat_history()
+    return {'status':'ok','message':'history deleted!'}
+
+
+@app.route('/modal')
+def modal():
+    return render_template('test_modal.html')
 
 if __name__ == '__main__':
     app.run(debug=True)

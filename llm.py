@@ -8,53 +8,37 @@ openai_api_key=os.getenv("OPENAI_API_KEY")
 together_api_key=os.getenv("TOGETHER_API_KEY")
 anthropic_api_key=os.getenv("ANTHROPIC_API_KEY")
 
-mode = "anthropic"
+# def askChatGPT(prompt, system_message='', model=model):
+#     if system_message == '':
+#         system_message = "Du bist ein hilfreicher Assistent"
+#     if mode=='anthropic':
+#         message = client.messages.create(
+#             model=model,
+#             max_tokens=1000,
+#             temperature=0,
+#             system=system_message,
+#             messages=[
+#                 {"role": "user", "content": prompt}
+#             ]
+#         )
+#         return message.content[0].text
+#     else:
+#         response = client.chat.completions.create(
+#             model=model,
+#             messages=[
+#                 {"role": "system", "content": system_message},
+#                 {"role": "user", "content": prompt}
+#             ],
+#             max_tokens=1000
+#         )
+#         return response.choices[0].message.content
 
-if mode =='together':
-    model = "meta-llama/Llama-2-70b-chat-hf"
-    #model = "mistralai/Mixtral-8x7B-v0.1"
-    client = OpenAI(
-        api_key=together_api_key,
-        base_url='https://api.together.xyz/v1',
-    )
-elif mode == 'anthropic':
-  model = "claude-3-haiku-20240307"
-  client = anthropic.Anthropic(api_key=anthropic_api_key)
-else:
-    client = OpenAI(api_key=openai_api_key)
-    model = "gpt-3.5-turbo"
-
-
-def askChatGPT(prompt, system_message='', model=model):
-    if system_message == '':
-        system_message = "Du bist ein hilfreicher Assistent"
-    if mode=='anthropic':
-        message = client.messages.create(
-            model=model,
-            max_tokens=1000,
-            temperature=0,
-            system=system_message,
-            messages=[
-                {"role": "user", "content": prompt}
-            ]
-        )
-        return message.content[0].text
-    else:
-        response = client.chat.completions.create(
-            model=model,
-            messages=[
-                {"role": "system", "content": system_message},
-                {"role": "user", "content": prompt}
-            ],
-            max_tokens=1000
-        )
-        return response.choices[0].message.content
-
-def streamChatGPT(messages, model=model):
+def streamChatGPT(messages, model):
     system_message = "Du bist ein hilfreicher Assistent"
-    if mode == 'anthropic':
+    if model['provider'] == 'anthropic':
+        client = anthropic.Anthropic(api_key=anthropic_api_key)
         response = client.messages.create(
-            model=model,
+            model=model['model'],
             max_tokens=1000,
             temperature=0,
             system=messages[0]['content'],
@@ -71,13 +55,15 @@ def streamChatGPT(messages, model=model):
             elif line.type == 'content_block_delta':
                 yield line.delta.text
         yield "###STOP###" + json.dumps({"prompt_tokens": input_tokens, "completion_tokens": output_tokens, "total_tokens": input_tokens + output_tokens})
-        
-
-         
             
     else:
+        if model['provider']=='together':
+            client = OpenAI(api_key=together_api_key,base_url='https://api.together.xyz/v1')
+        elif model['provider']=='openai':
+            client = OpenAI(api_key=openai_api_key)
+
         response = client.chat.completions.create(
-            model=model,
+            model=model['model'],
             messages=messages,
             stream=True
         )
@@ -87,7 +73,6 @@ def streamChatGPT(messages, model=model):
                 yield line.choices[0].delta.content.encode('utf-8')
             else:
                 if line.choices[0].finish_reason =='eos' or line.choices[0].finish_reason =='stop':
-                    print (line.usage)
                     try:
                         yield "###STOP###" + json.dumps(line.usage)
                     except:

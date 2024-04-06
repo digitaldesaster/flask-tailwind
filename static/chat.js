@@ -166,12 +166,20 @@ async function streamMessage() {
     let accumulatedResponse = ''; // Variable to accumulate the streamed response
 
     try {
+      let current_model = models[0];
+      for (let i = 0; i < models.length; i++) {
+        if (selected_model==models[i]['model'])
+        {
+          current_model = models[i];
+        }
+       
+      }
       const response = await fetch('/stream', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify(messages)
+        body: JSON.stringify({'messages':messages,'model':current_model})
       });
 
       if (!response.body) {

@@ -1,14 +1,18 @@
 <div class="fixed bottom-0 w-full h-40 bg-gray-200 rounded-xl ">
     <div class="flex flex-col absolute bottom-0 left-0 right-0 h-32 ml-2 mr-2 mb-2 md:ml-12 md:mr-12 md:mb-4 rounded-xl bg-white">
 
-      <div class="p-3 pr-16 overflow-auto">
+      <div class="p-3 pr-16 overflow-hidden">
 
         <!-- Removed h-full class and kept rows="3" -->
 
-        <textarea id="chat_input" placeholder="Type your message and press Command or Strg + Enter" rows="4"
-          class="w-full rounded-lg focus:outline-none resize-none"></textarea>
-
+        <textarea id="chat_input" placeholder="Type your message and press Command or Strg + Enter" rows="3"
+          class="border-none ring-0 w-full rounded-lg focus:outline-none focus:ring-0 resize-none"></textarea>
+          
       </div>
+      <label id="selected_model"class="w-fit h-4 ml-6 mb-4 text-gray-400"></label>
+      
+      
+      
 
       <div class="absolute bottom-0 right-0 p-3 flex flex-col gap-2">
 

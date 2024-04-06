@@ -1,3 +1,9 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer components {
+  .message {
+    @apply flex-1 justify-center text-gray-800 text-lg bg-slate-300 rounded-xl p-3;
+  }
+}
