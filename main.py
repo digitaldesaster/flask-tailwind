@@ -4,7 +4,7 @@ import time, json, os
 from llm import streamChatGPT
 from config import getConfig
 
-from db import update_chat_entry,list_chat_history,get_chat_messages,delete_all_chat_history,add_prompt_database,list_prompts_database
+from db import update_chat_entry,list_chat_history,get_chat_messages,delete_db_table,add_prompt_database,list_prompts_database,get_prompt_by_id
 
 try:
     secret_key=os.environ["SECRET_KEY"]
@@ -38,16 +38,26 @@ def login_required(f):
     return decorated_function
 
 # Apply the login_required decorator to routes that require authentication
+@app.route('/prompt/<prompt_id>')
 @app.route('/', methods=['GET', 'POST'])
 @login_required
-def index():
+def index(prompt_id=None):
     config = getConfig()
+        
     if request.method == 'POST':
         config['username'] = request.form.get('username')
         config['chat_started'] = request.form.get('chat_started')
         config['messages'] = json.loads(get_chat_messages(config['username'], config['chat_started']))
         return render_template('chat.html', config=config)
     else:
+        if prompt_id:
+            prompt = get_prompt_by_id(prompt_id)
+            
+            config['messages']=[]
+            config['messages'].append({'role':'system_message','content':prompt['system_message']})
+            config['messages'].append({'role':'user','content':prompt['prompt']})
+            config['use_prompt_template']='True'
+      
         config['username'] = session['username']
         config['chat_started'] = int(time.time())
         return render_template('chat.html', config=config)
@@ -100,16 +110,16 @@ def create_prompt():
 @app.route('/add_prompt', methods=['POST'])
 def add_prompt():
     data = request.get_json()
-    name = data.get('name')
-    system_message = data.get('system_message')
-    prompt = data.get('prompt')
+    name = data.get('_name')
+    system_message = data.get('_system_message')
+    prompt = data.get('_prompt')
 
     add_prompt_database(name, system_message, prompt)
     return ({'status': 'ok', 'message': 'Prompt added!'})
 
-@app.route('/delete_chat_history')
-def delete_history():
-    delete_all_chat_history()
+@app.route('/delete/<table>')
+def delete_table(table):
+    delete_db_table(table)
     return {'status':'ok','message':'history deleted!'}
 
 

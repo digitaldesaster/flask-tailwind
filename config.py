@@ -9,4 +9,4 @@ def getConfig():
         {'provider':'anthropic','model':'claude-3-haiku-20240307','name':'claude-3-haiku'},
         {'provider':'anthropic','model':'claude-3-opus-20240229','name':'claude-3-opus'}
         ]
-    return {"system_message":system_message,"welcome_message":welcome_message,'messages':messages,'models':models}
+    return {"system_message":system_message,"welcome_message":welcome_message,'messages':messages,'models':models,'use_prompt_template':'False'}

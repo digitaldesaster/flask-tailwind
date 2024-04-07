@@ -6,7 +6,20 @@ if (messages.length === 0) {
   });
   document.getElementById('chat_input').focus();
 } else {
-  // Use for...of to iterate over the elements of the array directly
+  if (use_prompt_template=='True')
+    {
+      document.addEventListener('DOMContentLoaded', (event) => {
+        addBotMessage(welcomeMessage);
+      });
+      let chat_input_ui = document.getElementById('chat_input');
+      chat_input_ui.textContent=messages[1]['content'];
+      chat_input_ui.focus();
+      messages.splice(1, 1);
+      console.log(messages);
+    }
+  else
+  {
+    // Use for...of to iterate over the elements of the array directly
   for (const message of messages) {
     // Check if the role of the message is either 'system' or 'assistant'
     if (['system', 'assistant'].includes(message['role'])) {
@@ -18,6 +31,8 @@ if (messages.length === 0) {
     }
   }
   document.getElementById('chat_messages').focus();
+  }
+  
 }
 
 function appendData(text, botMessageElement) {

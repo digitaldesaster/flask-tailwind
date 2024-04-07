@@ -121,11 +121,11 @@ def get_chat_messages(username, chat_started, conn=None):
         return "No messages found for the given parameters."
 
 @with_db_connection
-def delete_all_chat_history(conn=None):
+def delete_db_table(table,conn=None):
     """
     Delete all chat history records.
     """
-    query = "DELETE FROM chat_history"
+    query = "DELETE FROM " + table
     execute_db_query(query, conn=conn)  
 
 
@@ -134,19 +134,36 @@ def list_prompts_database(conn=None):
     """
     List all prompts from the database.
     """
-    query = "SELECT name, system_message, prompt FROM prompts Order By id DESC"
+    query = "SELECT id, name, system_message, prompt FROM prompts Order By id DESC"
     results = execute_db_query(query, conn=conn)
     
     # Convert the results into a list of dictionaries
     prompts = [
         {
-            "name": row[0],
-            "system_message": row[1],
-            "prompt": row[2]
+            "id": row[0],
+            "name": row[1],
+            "system_message": row[2],
+            "prompt": row[3]
         } for row in results
     ]
     
     return prompts
+
+@with_db_connection
+def get_prompt_by_id(prompt_id, conn=None):
+    query = "SELECT id, name, system_message, prompt FROM prompts WHERE id = ?"
+    result = execute_db_query(query, (prompt_id),fetchone=True, conn=conn)
+    
+    if result:
+        return {
+            "id": result[0],
+            "name": result[1],
+            "system_message": result[2],
+            "prompt": result[3]
+        }
+    else:
+        return None
+
 
 @with_db_connection
 def add_prompt_database(name, system_message, prompt, conn=None):
