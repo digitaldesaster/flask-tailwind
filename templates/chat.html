@@ -115,52 +115,67 @@
 
     });
 
-    document.getElementById('showHistory').addEventListener('click', function (e) {
-      let prompts_ui = document.getElementById('prompts');
-      if (prompts_ui) {
-        prompts_ui.classList.add('hidden');
-      }
-      let chat_messages_ui = document.getElementById('chat_messages');
-      let chat_ui = document.getElementById('chat_ui');
-
-      if (chat_messages_ui) {
-        chat_messages_ui.classList.add('hidden');
-      }
-      if (chat_ui) {
-        chat_ui.classList.add('hidden');
-      }
-
-
-
-      fetch("{{url_for('list_chat_history_endpoint')}}")
+    function loadElements(url)
+    {
+      fetch(url)
         .then(response => response.text())
         .then(data => {
           document.getElementById('main').innerHTML = data;
 
-          var chatHistoryBin = document.querySelector('.chat_history_bin');
+          // var chatHistoryBin = document.querySelector('.chat_history_bin');
 
-          // Füge einen Klick-Eventlistener hinzu
-          chatHistoryBin.addEventListener('click', function () {
-            // Rufe die API-Endpunkt auf
-            let url = "{{url_for('delete_history')}}"
-            fetch(url)
-              .then(response => response.json())
-              .then(data => {
-                // Gib die Antwort in der Konsole aus
-                console.log(data);
-                window.location.href = "{{url_for('index')}}";
-              })
-              .catch(error => {
-                console.error('Fehler beim Aufruf der API:', error);
-              });
-          });
+          // // Füge einen Klick-Eventlistener hinzu
+          // chatHistoryBin.addEventListener('click', function () {
+          //   // Rufe die API-Endpunkt auf
+          //   let url = "{{url_for('delete_history')}}"
+          //   fetch(url)
+          //     .then(response => response.json())
+          //     .then(data => {
+          //       // Gib die Antwort in der Konsole aus
+          //       console.log(data);
+          //       window.location.href = "{{url_for('index')}}";
+          //     })
+          //     .catch(error => {
+          //       console.error('Fehler beim Aufruf der API:', error);
+          //     });
+          // });
 
 
         })
         .catch(error => {
           console.error('Error fetching data:', error);
         });
+    }
 
+    function hideElements() {
+      let prompts_ui = document.getElementById('prompts');
+      if (prompts_ui) {
+        prompts_ui.classList.add('hidden');
+      }
+
+      let chat_messages_ui = document.getElementById('chat_messages');
+      if (chat_messages_ui) {
+        chat_messages_ui.classList.add('hidden');
+      }
+
+      let chat_ui = document.getElementById('chat_ui');
+      if (chat_ui) {
+        chat_ui.classList.add('hidden');
+      }
+    }
+
+    document.getElementById('showPrompts').addEventListener('click', function (e) {
+      let url = "{{url_for('show_prompts')}}"
+      hideElements()
+      loadElements(url);
+
+    });
+
+
+    document.getElementById('showHistory').addEventListener('click', function (e) {
+      let url = "{{url_for('list_chat_history_endpoint')}}"
+      hideElements();
+      loadElements(url);
 
     });
 

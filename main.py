@@ -4,7 +4,7 @@ import time, json, os
 from llm import streamChatGPT
 from config import getConfig
 
-from db import update_chat_entry,list_chat_history,get_chat_messages,delete_all_chat_history
+from db import update_chat_entry,list_chat_history,get_chat_messages,delete_all_chat_history,add_prompt_database,list_prompts_database
 
 try:
     secret_key=os.environ["SECRET_KEY"]
@@ -83,9 +83,29 @@ def list_chat_history_endpoint():
     chat_history = list_chat_history()
     return render_template('chat_history.html',chat_history=chat_history)
 
+@app.route('/show_prompts', methods=['GET'])
+@login_required
+def show_prompts():
+    prompts = list_prompts_database()
+    return render_template('show_prompts.html', prompts=prompts)
+
 @app.route('/test')
 def test():
     return render_template('flowbite.html')
+
+@app.route('/create_prompt')
+def create_prompt():
+    return render_template('create_prompt.html')
+
+@app.route('/add_prompt', methods=['POST'])
+def add_prompt():
+    data = request.get_json()
+    name = data.get('name')
+    system_message = data.get('system_message')
+    prompt = data.get('prompt')
+
+    add_prompt_database(name, system_message, prompt)
+    return ({'status': 'ok', 'message': 'Prompt added!'})
 
 @app.route('/delete_chat_history')
 def delete_history():

@@ -128,7 +128,52 @@ def delete_all_chat_history(conn=None):
     query = "DELETE FROM chat_history"
     execute_db_query(query, conn=conn)  
 
+
+@with_db_connection
+def list_prompts_database(conn=None):
+    """
+    List all prompts from the database.
+    """
+    query = "SELECT name, system_message, prompt FROM prompts Order By id DESC"
+    results = execute_db_query(query, conn=conn)
+    
+    # Convert the results into a list of dictionaries
+    prompts = [
+        {
+            "name": row[0],
+            "system_message": row[1],
+            "prompt": row[2]
+        } for row in results
+    ]
+    
+    return prompts
+
+@with_db_connection
+def add_prompt_database(name, system_message, prompt, conn=None):
+    """
+    Add a new prompt to the database.
+    """
+    query = "INSERT INTO prompts (name, system_message, prompt) VALUES (?, ?, ?)"
+    execute_db_query(query, (name, system_message, prompt), conn=conn)
+
+@with_db_connection
+def ensure_prompts_table_exists(conn=None):
+    """
+    Ensure the prompts table exists in the database.
+    """
+    create_table_query = '''CREATE TABLE IF NOT EXISTS prompts (
+                                id INTEGER PRIMARY KEY,
+                                name TEXT,
+                                system_message TEXT,
+                                prompt TEXT
+                            )'''
+    execute_db_query(create_table_query, conn=conn)
+
+# Ensure the prompts table exists
+
+
 # Ensure tables exist and the database connection setup remains unchanged from the previous setup.
 ensure_users_table_exists()
 ensure_chat_history_table_exists()
 #delete_all_chat_history()
+ensure_prompts_table_exists()
