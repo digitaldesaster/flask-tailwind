@@ -18,12 +18,12 @@
   {% include 'header.html' %}
 
   <main id="main">
-
-    {% include 'chat_messages.html' %}
-
-    {% include 'chat_prompts.html' %}
-
-
+    <div id="chat_messages_container">{% include 'chat_messages.html' %}</div>
+    <div id="selected_prompts_container">{% include 'chat_prompts.html' %}</div>
+    <div id="chat_history_container" class="hidden"></div>
+    <div id="prompts_container" class="hidden"></div>
+    <div id="create_prompt_container" class="hidden"></div>
+    <div id="chat_ui_container">{% include 'chat_ui.html' %}</div>
   </main>
 
   <!-- Bot Message Template -->
@@ -41,7 +41,6 @@
   </template>
 
 
-  {% include 'chat_ui.html' %}
 
   <script>
     var systemMessage = "{{ config.system_message }}";
@@ -105,32 +104,48 @@
     function hideElements() {
 
 
-      let prompts_ui = document.getElementById('show_prompts_ui');
-      if (prompts_ui) {
-        prompts_ui.classList.add('hidden');
+      let prompts_container = document.getElementById('prompts_container');
+      if (prompts_container) {
+        prompts_container.classList.add('hidden');
       }
 
-      let chat_history_ui = document.getElementById('chat_history_ui');
-      if (chat_history_ui) {
-        chat_history_ui.classList.add('hidden');
+      let selected_prompts_container = document.getElementById('selected_prompts_container');
+      if (selected_prompts_container) {
+        selected_prompts_container.classList.add('hidden');
       }
 
-      let chat_messages_ui = document.getElementById('chat_messages');
-      if (chat_messages_ui) {
-        chat_messages_ui.classList.add('hidden');
+      selected_prompts_container
+
+      let create_prompt_container = document.getElementById('create_prompt_container');
+      if (create_prompt_container) {
+        create_prompt_container.classList.add('hidden');
       }
 
-      let chat_ui = document.getElementById('chat_ui');
-      if (chat_ui) {
-        chat_ui.classList.add('hidden');
+      let chat_history_container = document.getElementById('chat_history_container');
+      if (chat_history_container) {
+        chat_history_container.classList.add('hidden');
+      }
+
+      let chat_messages_container = document.getElementById('chat_messages_container');
+      if (chat_messages_container) {
+        chat_messages_container.classList.add('hidden');
+      }
+
+      let chat_ui_container = document.getElementById('chat_ui_container');
+      if (chat_ui_container) {
+        chat_ui_container.classList.add('hidden');
       }
     }
 
-    function loadElements(url) {
+    function loadElements(id, url) {
       fetch(url)
         .then(response => response.text())
         .then(data => {
-          document.getElementById('main').innerHTML = data;
+          let container = document.getElementById(id);
+          container.innerHTML = data;
+          if (container.classList.contains('hidden')) {
+            container.classList.remove('hidden');
+          }
 
 
           // Alle Buttons mit der Klasse "selected_prompt" auswählen
@@ -212,7 +227,8 @@
                   console.log('Prompt saved successfully');
                   let url = "{{url_for('show_prompts')}}";
                   hideElements();
-                  loadElements(url);
+                  id = 'prompts_container'
+                  loadElements(id, url);
                   // You can add additional logic here, such as resetting the form or displaying a success message
                 } else {
                   console.error('Error saving prompt:', response.status);
@@ -233,8 +249,23 @@
     }
 
     document.getElementById('showChatUI').addEventListener('click', function (e) {
-      let url = "{{url_for('index')}}"
-      window.location.href=url;
+      hideElements();
+      let chat_messages_container = document.getElementById('chat_messages_container');
+      if (chat_messages_container.classList.contains('hidden')) {
+        chat_messages_container.classList.remove('hidden');
+      }
+
+      let chat_ui_container = document.getElementById('chat_ui_container');
+      if (chat_ui_container.classList.contains('hidden')) {
+        chat_ui_container.classList.remove('hidden');
+      }
+
+      if (messages.length == 1) {
+        let selected_prompts_container = document.getElementById('selected_prompts_container');
+        if (selected_prompts_container.classList.contains('hidden')) {
+          selected_prompts_container.classList.remove('hidden');
+        }
+      }
 
       // const formData = new FormData();
       // formData.append('username', username);
@@ -268,14 +299,16 @@
     document.getElementById('showPrompts').addEventListener('click', function (e) {
       let url = "{{url_for('show_prompts')}}"
       hideElements()
-      loadElements(url);
+      let id = "prompts_container";
+      loadElements(id, url);
 
     });
 
     document.getElementById('createPrompt').addEventListener('click', function (e) {
       let url = "{{url_for('create_prompt')}}"
       hideElements()
-      loadElements(url);
+      let id = "create_prompt_container"
+      loadElements(id, url);
 
     });
 
@@ -284,7 +317,8 @@
     document.getElementById('showHistory').addEventListener('click', function (e) {
       let url = "{{url_for('list_chat_history_endpoint')}}"
       hideElements();
-      loadElements(url);
+      let id = "chat_history_container";
+      loadElements(id, url);
 
     });
 
