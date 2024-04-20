@@ -113,7 +113,7 @@ def show_prompts():
 
 @app.route('/test')
 def test():
-    return render_template('flowbite.html')
+    return render_template('vertical_stepper.html')
 
 @app.route('/create_prompt')
 def create_prompt():

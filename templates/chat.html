@@ -101,40 +101,30 @@
 
     });
 
+    function showElementById(elementId) {
+      const element = document.getElementById(elementId);
+      if (element && element.classList.contains('hidden')) {
+        element.classList.remove('hidden');
+      }
+    }
+
+
     function hideElements() {
+      const uiElements = [
+        'prompts_container',
+        'selected_prompts_container',
+        'create_prompt_container',
+        'chat_history_container',
+        'chat_messages_container',
+        'chat_ui_container'
+      ];
 
-
-      let prompts_container = document.getElementById('prompts_container');
-      if (prompts_container) {
-        prompts_container.classList.add('hidden');
-      }
-
-      let selected_prompts_container = document.getElementById('selected_prompts_container');
-      if (selected_prompts_container) {
-        selected_prompts_container.classList.add('hidden');
-      }
-
-      selected_prompts_container
-
-      let create_prompt_container = document.getElementById('create_prompt_container');
-      if (create_prompt_container) {
-        create_prompt_container.classList.add('hidden');
-      }
-
-      let chat_history_container = document.getElementById('chat_history_container');
-      if (chat_history_container) {
-        chat_history_container.classList.add('hidden');
-      }
-
-      let chat_messages_container = document.getElementById('chat_messages_container');
-      if (chat_messages_container) {
-        chat_messages_container.classList.add('hidden');
-      }
-
-      let chat_ui_container = document.getElementById('chat_ui_container');
-      if (chat_ui_container) {
-        chat_ui_container.classList.add('hidden');
-      }
+      uiElements.forEach(elementId => {
+        const element = document.getElementById(elementId);
+        if (element) {
+          element.classList.add('hidden');
+        }
+      });
     }
 
     function loadElements(id, url) {
@@ -250,21 +240,12 @@
 
     document.getElementById('showChatUI').addEventListener('click', function (e) {
       hideElements();
-      let chat_messages_container = document.getElementById('chat_messages_container');
-      if (chat_messages_container.classList.contains('hidden')) {
-        chat_messages_container.classList.remove('hidden');
-      }
 
-      let chat_ui_container = document.getElementById('chat_ui_container');
-      if (chat_ui_container.classList.contains('hidden')) {
-        chat_ui_container.classList.remove('hidden');
-      }
+      ['chat_messages_container', 'chat_ui_container'].forEach(showElementById);
 
-      if (messages.length == 1) {
-        let selected_prompts_container = document.getElementById('selected_prompts_container');
-        if (selected_prompts_container.classList.contains('hidden')) {
-          selected_prompts_container.classList.remove('hidden');
-        }
+      // Spezielle Logik für 'selected_prompts_container', die nur unter bestimmten Bedingungen ausgelöst wird
+      if (messages.length === 1) {
+        showElementById('selected_prompts_container');
       }
 
       // const formData = new FormData();
