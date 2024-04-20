@@ -16,29 +16,14 @@
 
 <body class="bg-gray-200 relative min-h-screen pb-32">
   {% include 'header.html' %}
+
   <main id="main">
-    <div id="chat_messages" class="ml-2 mr-2 mt-3 mb-2 md:ml-16 md:mr-16 md:mt-6 overflow-auto flex flex-col">
-
-    </div>
-    {% if config.messages | length == 0 %}
-    <div id="prompts"
-      class="ml-2 mr-2 mt-3 mb-2 md:ml-16 md:mr-16 md:mt-6 overflow-auto flex flex-row justify-center gap-4">
-      <div
-        class="prompt relative h-12 w-64 flex items-center justify-center bg-indigo-500 hover:bg-indigo-700 text-white rounded-xl cursor-pointer">
-        Wer war Ada Lovelace?
-      </div>
-
-
-      <div
-        class="group relative prompt h-12 w-64 flex items-center justify-center bg-indigo-500 hover:bg-indigo-700 text-white rounded-xl cursor-pointer">
-        Schreibe eine index.html
-
-
-      </div>
-
-    </div>
-    {% endif %}
-
+    <div id="chat_messages_container">{% include 'chat_messages.html' %}</div>
+    <div id="selected_prompts_container">{% include 'chat_prompts.html' %}</div>
+    <div id="chat_history_container" class="hidden"></div>
+    <div id="prompts_container" class="hidden"></div>
+    <div id="create_prompt_container" class="hidden"></div>
+    <div id="chat_ui_container">{% include 'chat_ui.html' %}</div>
   </main>
 
   <!-- Bot Message Template -->
@@ -56,7 +41,6 @@
   </template>
 
 
-  {% include 'chat_ui.html' %}
 
   <script>
     var systemMessage = "{{ config.system_message }}";
@@ -64,7 +48,7 @@
     var username = "{{ config.username }}";
     var chat_started = "{{ config.chat_started }}";
     var use_prompt_template = "{{config.use_prompt_template}}";
-    
+
     var messages = {{ config.messages | tojson | safe }};
     var models = {{ config.models | tojson | safe}};
 
@@ -117,35 +101,41 @@
 
     });
 
-    function hideElements() {
-
-      
-      let prompts_ui = document.getElementById('show_prompts_ui');
-      if (prompts_ui) {
-        prompts_ui.classList.add('hidden');
-      }
-
-      let chat_history_ui = document.getElementById('chat_history_ui');
-      if (chat_history_ui) {
-        chat_history_ui.classList.add('hidden');
-      }
-
-      let chat_messages_ui = document.getElementById('chat_messages');
-      if (chat_messages_ui) {
-        chat_messages_ui.classList.add('hidden');
-      }
-
-      let chat_ui = document.getElementById('chat_ui');
-      if (chat_ui) {
-        chat_ui.classList.add('hidden');
+    function showElementById(elementId) {
+      const element = document.getElementById(elementId);
+      if (element && element.classList.contains('hidden')) {
+        element.classList.remove('hidden');
       }
     }
 
-    function loadElements(url) {
+
+    function hideElements() {
+      const uiElements = [
+        'prompts_container',
+        'selected_prompts_container',
+        'create_prompt_container',
+        'chat_history_container',
+        'chat_messages_container',
+        'chat_ui_container'
+      ];
+
+      uiElements.forEach(elementId => {
+        const element = document.getElementById(elementId);
+        if (element) {
+          element.classList.add('hidden');
+        }
+      });
+    }
+
+    function loadElements(id, url) {
       fetch(url)
         .then(response => response.text())
         .then(data => {
-          document.getElementById('main').innerHTML = data;
+          let container = document.getElementById(id);
+          container.innerHTML = data;
+          if (container.classList.contains('hidden')) {
+            container.classList.remove('hidden');
+          }
 
 
           // Alle Buttons mit der Klasse "selected_prompt" auswählen
@@ -157,13 +147,13 @@
             selectedPromptButtons.forEach(button => {
               button.addEventListener('click', () => {
                 console.log(button.id);
-                window.location.href = "{{url_for('index')}}" + "prompt/"+button.id;
+                window.location.href = "{{url_for('index')}}" + "prompt/" + button.id;
               });
             });
           } else {
             console.log('Keine Buttons mit der Klasse "selected_prompt" gefunden.');
           }
-        
+
 
           var deleteAllPrompts = document.getElementById('deleteAllPrompts');
           if (deleteAllPrompts) {
@@ -227,7 +217,8 @@
                   console.log('Prompt saved successfully');
                   let url = "{{url_for('show_prompts')}}";
                   hideElements();
-                  loadElements(url);
+                  id = 'prompts_container'
+                  loadElements(id, url);
                   // You can add additional logic here, such as resetting the form or displaying a success message
                 } else {
                   console.error('Error saving prompt:', response.status);
@@ -247,19 +238,58 @@
         });
     }
 
+    document.getElementById('showChatUI').addEventListener('click', function (e) {
+      hideElements();
 
+      ['chat_messages_container', 'chat_ui_container'].forEach(showElementById);
+
+      // Spezielle Logik für 'selected_prompts_container', die nur unter bestimmten Bedingungen ausgelöst wird
+      if (messages.length === 1) {
+        showElementById('selected_prompts_container');
+      }
+
+      // const formData = new FormData();
+      // formData.append('username', username);
+      // formData.append('chat_started', chat_started);
+      // formData.append('messages', JSON.stringify(messages));
+      // formData.append('rendered', 'True');
+
+      // console.log(formData)
+
+      // try {
+      //   const response = fetch(url, {
+      //     method: 'POST',
+      //     headers: {
+      //       'Content-Type': 'application/json',
+      //     },
+      //     body: formData,
+      //   });
+
+      //   if (response.ok) {
+      //     console.log(response.data);
+      //   } else {
+      //     console.error('Error saving prompt:', response.status);
+      //   }
+      // } catch (error) {
+      //   console.error('Error:', error);
+      // }
+
+
+    });
 
     document.getElementById('showPrompts').addEventListener('click', function (e) {
       let url = "{{url_for('show_prompts')}}"
       hideElements()
-      loadElements(url);
+      let id = "prompts_container";
+      loadElements(id, url);
 
     });
 
     document.getElementById('createPrompt').addEventListener('click', function (e) {
       let url = "{{url_for('create_prompt')}}"
       hideElements()
-      loadElements(url);
+      let id = "create_prompt_container"
+      loadElements(id, url);
 
     });
 
@@ -268,7 +298,8 @@
     document.getElementById('showHistory').addEventListener('click', function (e) {
       let url = "{{url_for('list_chat_history_endpoint')}}"
       hideElements();
-      loadElements(url);
+      let id = "chat_history_container";
+      loadElements(id, url);
 
     });
 

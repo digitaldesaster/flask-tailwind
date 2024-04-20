@@ -47,7 +47,15 @@ def index(prompt_id=None):
     if request.method == 'POST':
         config['username'] = request.form.get('username')
         config['chat_started'] = request.form.get('chat_started')
+        # try:
+        #     rendered = request.form.get('chat_started')
+        #     if rendered =='True':
+        #         rendered=True
+        # except:
+        #     rendered = False
         config['messages'] = json.loads(get_chat_messages(config['username'], config['chat_started']))
+        #if (rendered):
+        #   return render_template('chat_messages_rendered.html', config=config)
         return render_template('chat.html', config=config)
     else:
         if prompt_id:
@@ -93,6 +101,10 @@ def list_chat_history_endpoint():
     chat_history = list_chat_history()
     return render_template('chat_history.html',chat_history=chat_history)
 
+@app.route('/load_ui/<template>')
+def load_ui(template):
+    return render_template(template)
+
 @app.route('/show_prompts', methods=['GET'])
 @login_required
 def show_prompts():
@@ -101,7 +113,7 @@ def show_prompts():
 
 @app.route('/test')
 def test():
-    return render_template('flowbite.html')
+    return render_template('vertical_stepper.html')
 
 @app.route('/create_prompt')
 def create_prompt():
