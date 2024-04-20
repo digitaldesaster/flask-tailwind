@@ -111,9 +111,9 @@ def show_prompts():
     prompts = list_prompts_database()
     return render_template('show_prompts.html', prompts=prompts)
 
-@app.route('/test')
+@app.route('/cloud')
 def test():
-    return render_template('vertical_stepper.html')
+    return render_template('cloud.html')
 
 @app.route('/create_prompt')
 def create_prompt():
